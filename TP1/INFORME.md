@@ -51,6 +51,8 @@ De los protocolos mencionados, el mas explotado en este trabajo es ICMP, que tie
 A su vez, ICMP dependiendo de la versión para la cual se use, IPv4 o IPv6, hará uso de ARP o NDP respectivamente. Esto se debe a que cuando uno hace uso de una de las funcionalidades, por ejemplo `ping`, uno pasa el IP de la máquina _target_. En una red local, los dispositivos se comunican a nivel Capa OSI 2, es decir que debe haber un mapeo entre el IP destino, y la MAC de ese destino. Este mapeo debe encontrarse en la tabla ARP del host origen. Si no se encuentra, se envía un mensaje de tipo _broadcast_ a la red, de manera de añadir esta entrada. Luego recién puede haber comunicación entre estos dos hosts.  
 Caso similar se da al utilizar IPv6, donde las funcionalidades de ICMP hacen uso de NDP.
 
+# Desarrollo
+
 ## 2)
 
 Para este propósito, y los items de práctica siguientes se utilizó Cisco Packet Tracer.
@@ -95,11 +97,26 @@ Al router tener 2 NICs, tiene 2 tablas ARP. Una de ellas tendrá como única ent
 
 Las dirección de broadcast de IPv4 son XXX.XXX.XXX.255; es decir que utilizan el último valor posible del último octeto de la subred a la cual quiere enviársele un mensaje broadcast. La utilidad de un mensaje broadcast es principalmente descubrir hosts, en el caso del protocolo DHCP o ARP; aunque también puede utilizarse para otros propósitos específicos a ciertas aplicaciones. Todos los hosts de una subred recibirán un mensaje broadcast direccionado a dicha respectiva subred.
 
----
+## 7)
 
-# Resultados
+### b) 
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tempor, mauris sit amet aliquet vestibulum, enim ante consectetur enim, vel sollicitudin odio risus vel libero. Integer eget ipsum sed eros luctus laoreet vel vel leo. Fusce ut dapibus nisl. Aliquam erat volutpat. Donec in elit non justo convallis vestibulum.
+Sí, lo reemplaza en IPv6. Intenta ser mas _lite_, y provee capacidades extras.
+
+### c)
+
+Las funciones o funcionalidades principales son:
+- Reemplazando a ARP, sigue siendo necesario un mapeo de IP vs MAC. Esto se sigue haciendo, mediante nuevas metodologías conocidas como Neighbor Solicitation (NS) y Neighbor Advertisement (NA).
+- La autoconfiguración de direcciones IP. Mientras que en IPv4 era menester el uso de DHCP para la obtención dinámica de direcciones ip, NDP no necesita de ello, mediante el sistema SLAAC puede autoasignarse una dirección IP, principalmente basada en su propia dirección MAC.
+- Otras funcionalidades _secundarias_ como la _detección de duplicación de direcciones ip_, _router solicitation_; en routers: _router advertisement_, y _redirection_, que permite a los routers redirigir el tráfica hacia una aparente mejor ruta.
+
+### d)
+
+En IPv6 hay una flexibilidad mayor para hacer broadcast; es posible hacer un broadcast a todos los hosts no-routers de la red local mediante `ff02::1`, o hacer uno a todos los routers _al alcance_ con `ff02::2`. Para esto último, los routers deben tener habilitada la funcionalidad.
+
+### e)
+
+En IPv6, las direcciones **link-local** (LLA) son válidas solo dentro de la misma red local. Las **unique-local** (ULA) son válidas dentro de una red privada, tampoco tiene validez en internet al igual que las LLA. Vale aclarar que la diferencia entre LLA y ULA radica en que una ULA puede aplicar a una WAN que no necesariamente es parte de internet. Por último las direcciones **global** (GUA) son públicas a todo el internet.
 
 ---
 
