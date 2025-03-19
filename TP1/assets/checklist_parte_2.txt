@@ -1,0 +1,30 @@
+- [ ] Tomar nota del modelo exacto de Switch.
+
+FASE PUTTY
+----------
+2)a)
+- [ ] Desinstalar cualquier versión previa de Putty de las PCs, de modo de instalar la última.
+- [ ] Instalar última versión de Putty: https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html.
+	- [ ] Configurar Session: Serial; Close window on exit: Never.
+	- [ ] Configurar Logging: Printable Output; Log file name: "putty_&Y-&M-&D-&T-&H-&P.log".
+	- [ ] Configurar Connection/Serial: Serial line to connect to (chequear a que COM de propia PC está conectado el switch).
+	- [ ] Go to Session -> Open
+	
+FASE SWITCH
+-----------
+2)b), c), y d)
+- [ ] Configuración de Switch.
+	- [ ] Reseteo a configuración de fábrica.
+	- [ ] Configuración de hostname.
+	- [ ] Configuración de contraseñas.
+	- [ ] Configuración de mirroring (ver adjunto).
+	- [ ] Save of the running-config as startup-config.
+- [ ] Testeo de conectividad entre dos PCs y observación de una 3era.
+	- [ ] Conectar las 3 PCs al Switch de manera correcta. La PC con Wireshark debe ser la observadora (a puerto mirrored).
+	- [ ] En la máquina del puerto 3, usar el compando `arp -d` (Windows) o `arp -n` (Linux, también puede funcionar con `ip neigh`).
+	- [ ] Enviar paquete usando `ping` de la máquina del puerto 1 a la del puerto 2.
+		- [ ] En la máquina del puerto 3, usar el compando `arp -d` (Windows) o `arp -n` (Linux, también puede funcionar con `ip neigh`).
+		- [ ] Observar estos paquetes desde la máquina del puerto 3. Encontrar el sector de "direcciones IP" en los datagramas.
+	- [ ] Enviar paquete usando `ping` de la máquina del puerto 2 a la del puerto 1.
+		- [ ] En la máquina del puerto 3, usar el compando `arp -d` (Windows) o `arp -n` (Linux, también puede funcionar con `ip neigh`).
+		- [ ] Observar estos paquetes desde la máquina del puerto 3. Encontrar el sector de "direcciones IP" en los datagramas.
