@@ -200,7 +200,13 @@ Los switches de capa 2, como el Cisco Catalyst 2950, no necesitan direcciones IP
 
 # Discusión y conclusiones
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tempor, mauris sit amet aliquet vestibulum, enim ante consectetur enim, vel sollicitudin odio risus vel libero. Integer eget ipsum sed eros luctus laoreet vel vel leo. Fusce ut dapibus nisl. Aliquam erat volutpat. Donec in elit non justo convallis vestibulum.
+A lo largo de este trabajo, se han explorado y analizado diversos protocolos fundamentales para la comunicación en redes, incluyendo ARP, IPv4, IPv6, NDP e ICMP, así como la funcionalidad de switches y routers en la interconexión de dispositivos. Mediante la simulación en Cisco Packet Tracer, se ha podido observar el comportamiento de estos protocolos en entornos de red, destacando la interacción entre dispositivos y la resolución de direcciones a distintos niveles del modelo TCP/IP.
+
+Uno de los temas clave fue el funcionamiento de ICMP en la verificación de conectividad y la detección de problemas en la red. En IPv4, ARP es utilizado para mapear direcciones IP a MAC, mientras que en IPv6, esta función es reemplazada por NDP.
+
+La simulacion también permitió comprender cómo un router determina el enrutamiento de paquetes entre subredes, haciendo uso de su tabla de enrutamiento y protocolos de descubrimiento de vecinos. Así mismo, se analizó el rol del switch en la segmentación de redes locales, facilitando la comunicación eficiente a nivel de capa 2 y reenvío de tramas basadas en direcciones MAC.
+
+En cuanto al hardware, el Cisco Catalyst 2950 es una solución confiable para redes pequeñas y medianas, ofreciendo capacidades avanzadas como VLANs y seguridad basada en MAC. 
 
 ---
 
