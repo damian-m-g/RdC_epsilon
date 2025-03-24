@@ -1,4 +1,4 @@
-# Trabajo Práctico N° 1 (parte 1)
+# Trabajo Práctico N° 1
 
 ### Nombres _(por órden alfabético)_
 _Gil Cernich Manuel (manuel.gil.cernich@mi.unc.edu.ar)_  
@@ -117,6 +117,64 @@ En IPv6 hay una flexibilidad mayor para hacer broadcast; es posible hacer un bro
 ### e)
 
 En IPv6, las direcciones **link-local** (LLA) son válidas solo dentro de la misma red local. Las **unique-local** (ULA) son válidas dentro de una red privada, tampoco tiene validez en internet al igual que las LLA. Vale aclarar que la diferencia entre LLA y ULA radica en que una ULA puede aplicar a una WAN que no necesariamente es parte de internet. Por último las direcciones **global** (GUA) son públicas a todo el internet.
+
+# Parte 2
+
+## 1)
+
+## 2)
+
+El checklist fué confeccionado [aquí](./assets/checklist_parte_2.txt).
+
+De esta forma fué configurado Putty para acceder al switch:
+
+![](imagenes/putty_config.PNG)
+
+Los comandos de:
+
+- reinicio a configuración de fábrica, y configuración inicial;
+- configuración de contraseñas;
+- configuración de port mirroring en puerto 3
+
+... ejecutados en el switch fueron los siguientes:
+
+```text
+enable
+erase startup-config
+reload
+
+enable
+configure terminal
+hostname Cisco2950-24
+line console 0
+password cisco
+login
+end
+
+configure terminal
+enable secret epsilon
+exit
+
+configure terminal
+line vty 0 15
+password epsilon_remote
+login
+end
+
+configure terminal
+service password-encryption
+end
+
+configure terminal
+monitor session 1 source interface fastethernet0/1
+monitor session 1 source interface fastethernet0/2
+monitor session 1 destination interface fastethernet0/3
+end
+
+copy running-config startup-config
+```
+
+La subred configurada en las 3 computadoras que se utilizaron para el experimento se configuraron en 192.168.0.X, máscara de subred 255.255.255.0. Las respectivas IP son 192.168.0.10 para la conectada al puerto 3 (mirroring), 192.168.0.20 al puerto 1, y 192.168.0.30 al puerto 2.
 
 ---
 
