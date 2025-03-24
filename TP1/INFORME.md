@@ -120,6 +120,84 @@ En IPv6, las direcciones **link-local** (LLA) son válidas solo dentro de la mis
 
 ---
 
+# Parte 2
+
+## 1)
+
+El Cisco Catalyst 2950 es una serie de switches de configuración fija y administrados con capacidad de 10/100 Mbps, diseñado para pequeñas y medianas redes. Estos switches incluyen el software Standard Image (SI), que proporciona funcionalidades básicas para datos, voz y video.
+
+### Características de Hardware
+
+#### Puertos y Conectividad
+  - Disponible en configuraciones de 12, 24 o 48 puertos 10/100 Mbps según el modelo
+  - Puertos de enlace ascendente Gigabit Ethernet (modelos 2950SX con 2 puertos 1000BASE-SX fijos)
+  - Soporte para modos de comunicación Half-Duplex y Dúplex completo
+
+#### Memoria y Rendimiento
+  - 16 MB de DRAM para procesamiento
+  - 8 MB de memoria Flash para almacenamiento del sistema operativo
+  - 8 MB de buffer de paquetes compartido por todos los puertos
+  - Capacidad para configurar hasta 8,000 direcciones MAC
+  - Rendimiento de conmutación de 13.6 Gbps (en modelos superiores)
+  - Tasas de reenvío de entre 1.8 Mpps (modelo 2950-12) hasta 10.1 Mpps (modelos 2950T-48 y 2950SX-48)
+
+#### Diseño Físico
+  - Factor de forma: 1U para montaje en rack
+  - Dimensiones: 17.5 x 9.5 x 1.7 pulgadas (ancho x profundidad x altura)
+  - Formato apilable y adecuado para instalación en armarios de telecomunicaciones
+
+#### Funcionalidades Avanzadas
+
+Una de las características más importantes del Catalyst 2950 es la capacidad para implementar VLANs, permitiendo segmentar una red física en múltiples redes virtuales. Esto proporciona:
+  - Mayor seguridad al aislar grupos de trabajo
+  - Mejor rendimiento al reducir dominios de colisión y broadcast
+  - Facilidad de administración al agrupar usuarios lógicamente independientemente de su ubicación física
+
+#### Seguridad de Red
+  - Secure Shell version 2 (SSHv2) para encriptar información administrativa
+  - Private VLAN Edge para aislar puertos en un switch
+  - Seguridad basada en usuarios o direcciones MAC
+  - Control de acceso mediante autenticación IEEE 802.1x
+
+#### Rendimiento y Disponibilidad
+  - Fast EtherChannel para proporcionar alto rendimiento en enlaces entre switches, routers y servidores
+  - Múltiples enlaces ascendentes Gigabit para aumentar el ancho de banda hacia el núcleo de la red
+
+## 2)
+
+## 3)
+
+### a)
+
+### b)
+
+### c)
+
+El enrutador determina la comunicación entre un host y otro siguiendo estos pasos:
+
+1. **Verificación de la dirección IP de destino**
+  - Cuando Cliente 1 envía un paquete ICMP a Cliente 2, primero verifica si la IP de destino está en la misma subred.
+  - Si están en redes diferentes, Cliente 1 envía el paquete al gateway predeterminado (el router).
+
+2. **Tabla de enrutamiento**
+  - El router revisa su tabla de enrutamiento para determinar la mejor ruta hacia la red de Cliente 2.
+  - Si tiene una entrada para la red de destino, reenvía el paquete por la interfaz adecuada.
+  - Si no tiene una ruta, puede usar una ruta por defecto o descartar el paquete.
+
+3. **Encapsulación de la trama**
+  - El router cambia la dirección MAC de origen y destino en la trama Ethernet y la envía al switch para que llegue a Cliente 2.
+
+4. **Respuesta del Cliente 2**
+  - Cliente 2 responde con un paquete ICMP siguiendo el mismo proceso, pero en dirección inversa.
+
+### d)
+
+El switch se usa para interconectar dispositivos dentro de la misma red (LAN) y mejorar la eficiencia en la transmisión de datos. Sus funciónes principales son aprender direcciones MAC y reenviar trafico solo a los puertos correctos, reducir las colusiones en la red y usar la conmutacion por hardware, y optimizar el rendimiento mediante full-duplex.
+
+Los switches de capa 2, como el Cisco Catalyst 2950, no necesitan direcciones IP en sus interfaces porque trabajan con direcciones MAC y no con direcciones IP para reenviar tráfico. Aun que un siwtch puede tener una direcciones IP, esta solo se usa para administracion remota y no para el trafico de datos.
+
+---
+
 # Discusión y conclusiones
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tempor, mauris sit amet aliquet vestibulum, enim ante consectetur enim, vel sollicitudin odio risus vel libero. Integer eget ipsum sed eros luctus laoreet vel vel leo. Fusce ut dapibus nisl. Aliquam erat volutpat. Donec in elit non justo convallis vestibulum.
