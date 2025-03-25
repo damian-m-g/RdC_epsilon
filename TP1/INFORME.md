@@ -935,13 +935,37 @@ Al iniciar tráfico ICMPv6 entre h1 (2001:aaaa:bbbb:1::10/64) y h3 (2001:aaaa:cc
 
   
 
-  
 
 ---
 
-  
+## 6)
 
+### a)  
+
+Antes de iniciar el intercambio de paquetes ICMP, la tabla ARP se encontraba vacía, sin ninguna asociación entre direcciones IP y direcciones MAC. Esta ausencia de entradas en la tabla refleja que aún no se había establecido comunicación entre los dispositivos de la red, como se evidencia en la siguiente captura:
+
+![](imagenes/Tabla_ARP_0.png)
+
+Luego de la ejecución de los comandos ping, la tabla ARP se actualizó automáticamente, registrando las direcciones MAC de origen correspondientes a cada uno de los hosts que enviaron solicitudes ICMP. Este proceso de resolución de direcciones permitió completar la tabla con la información necesaria para establecer la comunicación a nivel de enlace de datos entre los dispositivos de la red.
+
+![](imagenes/Tabla_ARP_1.png)
   
+### b) 
+
+En los datagramas IP, las direcciones IP se encuentran en la cabecera IPv4 del paquete, específicamente en los campos de dirección IP de origen y dirección IP de destino.
+
+Por ejemplo, en un datagrama IP capturado durante la comunicación entre dos hosts, podemos observar:
+
+![](imagenes/Frame_ICMP_0.png)
+
+
+
+- **Dirección IP de origen:** 192.168.0.20 → Esta es la dirección del dispositivo que envía el datagrama
+
+- **Dirección IP de destino:** 192.168.0.30 → Esta es la dirección del dispositivo al que va dirigido el datagrama
+
+
+
 
   
 
