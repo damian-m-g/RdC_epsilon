@@ -54,6 +54,8 @@ De los protocolos mencionados, el mas explotado en este trabajo es ICMP, que tie
 A su vez, ICMP dependiendo de la versión para la cual se use, IPv4 o IPv6, hará uso de ARP o NDP respectivamente. Esto se debe a que cuando uno hace uso de una de las funcionalidades, por ejemplo `ping`, uno pasa el IP de la máquina _target_. En una red local, los dispositivos se comunican a nivel Capa OSI 2, es decir que debe haber un mapeo entre el IP destino, y la MAC de ese destino. Este mapeo debe encontrarse en la tabla ARP del host origen. Si no se encuentra, se envía un mensaje de tipo _broadcast_ a la red, de manera de añadir esta entrada. Luego recién puede haber comunicación entre estos dos hosts.  
 Caso similar se da al utilizar IPv6, donde las funcionalidades de ICMP hacen uso de NDP.
 
+---
+
 # Desarrollo
 
 ## 2)
@@ -62,23 +64,9 @@ Para este propósito, y los items de práctica siguientes se utilizó Cisco Pack
 
 ![](imagenes/diagrama_de_red.jpg)
 
-| Ejemplo | Tabla |
-|-----------|-------|
-| Header | Title |
-| Paragraph | Text |
+## 3)
 
-```
-// Más código
-{
-"firstName": "John",
-"lastName": "Smith",
-"age": 25
-}
-```
-
----
-
-# Desarrollo
+Un simulador es una abstracción de un emulador. Un emulador es una abstracción de la realidad. El emulador replica lo mas fielmente posible, los aspectos de la realidad que quiere _copiar_. El simulador, por otro lado, se abstrae un poco mas de la realidad versus el emulador. En el caso del simulador, no necesariamente se tienen en cuenta _todos_ los aspectos que hacen a la realidad de la _cosa_ que se quiere copiar, sino solo los necesarios para demostrar cierto objetivo. En cuanto a hardware y software, un emulador de una _cosa_ lógicamente consume muchos mas recursos que un simulador de la _cosa_, porque este último maneja mucha menos información que un emulador.
 
 ## 4)  
 
@@ -197,6 +185,38 @@ Ejemplo gráfico de lo mencionado anteriormente:
 
 Lo mismo ocurre cuando se realizar un ping desde h1 hacia h3, lo que cambia es la dirección de destino que será la de h3.
 
+### c)
+
+1. El host h1 detecta que h2 no está en su misma subred, por lo tanto envía el paquete al default gateway: el router.
+2. El router recibe el paquete, observa la IP de destino y se da cuenta que está en la subred conectada a su otra NIC, sin embargo primero necesita conocer su dirección MAC, previo a re-encapsular el paquete. Puede tener la dirección MAC asociada a la IP destino o no. Este mapeo se encuentra en la tabla ARP del router. Suponiendo que no tiene este mapeo hecho, enviará un _ARP request_ a la subred destino, esto es un mensaje broadcast. El switch aquí hace de _pasamanos_. h2 recibe el _ARP request_ y _responde con su MAC_. El router ahora tiene en su tabla ARP la asociación entre IP destino y su respectiva MAC.
+3. El router encapsula el paquete del host h1 dentro de una trama Ethernet (o de carácter similar (misma capa)) y la envía en dirección a h2.
+4. El switch recibe este paquete, ya que se encuentra en el medio entre el router y h2. Lo que hace es simplemente reenviar el paquete al puerto de salida que tiene mapeada la dirección MAC destino.
+
+### d)
+
+El switch se utiliza simplemente para ampliar una red. En una hipotética red local, si está comprendida por dos computadoras, con una conexión punto a punto basta; peor se si suma una tercer computadora, y no se desean agregar mas NICs que la única que viene con cada host, entonces será necesaria la utilización de un switch. Los switches pueden anidarse para crear redes mas grandes. Un switch opera en la capa OSI 2, donde maneja la identidad de cada host miembro de la red mediante una **identificación única** concerniente a determinada NIC conocida como MAC.  
+El switch no tiene asignada direcciones IP en sus interfaces porque sabe nada de ese protocolo. Ese protocolo pertenece a la capa OSI 3, gracias a esto, un switch no necesita gran capacidad computacional, sino algo reducida con respecto a las capacidades que tiene un router.
+
+### e)
+
+Las entradas de la tabla ARP (IP vs MAC) de h1 contiene solamente su default gateway: el router.
+
+### f)
+
+Las entradas de la tabla ARP de h3 son:
+- default gateway: router
+- h2
+
+### g)
+
+Al router tener 2 NICs, tiene 2 tablas ARP. Una de ellas tendrá como única entrada h1. La otra tendrá como entradas:
+- h2
+- h3
+
+### h)
+
+Las dirección de broadcast de IPv4 son XXX.XXX.XXX.255; es decir que utilizan el último valor posible del último octeto de la subred a la cual quiere enviársele un mensaje broadcast. La utilidad de un mensaje broadcast es principalmente descubrir hosts, en el caso del protocolo DHCP o ARP; aunque también puede utilizarse para otros propósitos específicos a ciertas aplicaciones. Todos los hosts de una subred recibirán un mensaje broadcast direccionado a dicha respectiva subred.
+
 ## 7)  
 
 ### a.
@@ -234,45 +254,6 @@ Al iniciar tráfico ICMPv6 entre h1 (2001:aaaa:bbbb:1::10/64) y h3 (2001:aaaa:cc
 #### Ejemplo gráfico del proceso NDP
 
 ![](imagenes/NDP.gif)
-## 3)
-
-Un simulador es una abstracción de un emulador. Un emulador es una abstracción de la realidad. El emulador replica lo mas fielmente posible, los aspectos de la realidad que quiere _copiar_. El simulador, por otro lado, se abstrae un poco mas de la realidad versus el emulador. En el caso del simulador, no necesariamente se tienen en cuenta _todos_ los aspectos que hacen a la realidad de la _cosa_ que se quiere copiar, sino solo los necesarios para demostrar cierto objetivo. En cuanto a hardware y software, un emulador de una _cosa_ lógicamente consume muchos mas recursos que un simulador de la _cosa_, porque este último maneja mucha menos información que un emulador.
-
-## 6)
-
-### c)
-
-1. El host h1 detecta que h2 no está en su misma subred, por lo tanto envía el paquete al default gateway: el router.
-2. El router recibe el paquete, observa la IP de destino y se da cuenta que está en la subred conectada a su otra NIC, sin embargo primero necesita conocer su dirección MAC, previo a re-encapsular el paquete. Puede tener la dirección MAC asociada a la IP destino o no. Este mapeo se encuentra en la tabla ARP del router. Suponiendo que no tiene este mapeo hecho, enviará un _ARP request_ a la subred destino, esto es un mensaje broadcast. El switch aquí hace de _pasamanos_. h2 recibe el _ARP request_ y _responde con su MAC_. El router ahora tiene en su tabla ARP la asociación entre IP destino y su respectiva MAC.
-3. El router encapsula el paquete del host h1 dentro de una trama Ethernet (o de carácter similar (misma capa)) y la envía en dirección a h2.
-4. El switch recibe este paquete, ya que se encuentra en el medio entre el router y h2. Lo que hace es simplemente reenviar el paquete al puerto de salida que tiene mapeada la dirección MAC destino.
-
-### d)
-
-El switch se utiliza simplemente para ampliar una red. En una hipotética red local, si está comprendida por dos computadoras, con una conexión punto a punto basta; peor se si suma una tercer computadora, y no se desean agregar mas NICs que la única que viene con cada host, entonces será necesaria la utilización de un switch. Los switches pueden anidarse para crear redes mas grandes. Un switch opera en la capa OSI 2, donde maneja la identidad de cada host miembro de la red mediante una **identificación única** concerniente a determinada NIC conocida como MAC.  
-El switch no tiene asignada direcciones IP en sus interfaces porque sabe nada de ese protocolo. Ese protocolo pertenece a la capa OSI 3, gracias a esto, un switch no necesita gran capacidad computacional, sino algo reducida con respecto a las capacidades que tiene un router.
-
-### e)
-
-Las entradas de la tabla ARP (IP vs MAC) de h1 contiene solamente su default gateway: el router.
-
-### f)
-
-Las entradas de la tabla ARP de h3 son:
-- default gateway: router
-- h2
-
-### g)
-
-Al router tener 2 NICs, tiene 2 tablas ARP. Una de ellas tendrá como única entrada h1. La otra tendrá como entradas:
-- h2
-- h3
-
-### h)
-
-Las dirección de broadcast de IPv4 son XXX.XXX.XXX.255; es decir que utilizan el último valor posible del último octeto de la subred a la cual quiere enviársele un mensaje broadcast. La utilidad de un mensaje broadcast es principalmente descubrir hosts, en el caso del protocolo DHCP o ARP; aunque también puede utilizarse para otros propósitos específicos a ciertas aplicaciones. Todos los hosts de una subred recibirán un mensaje broadcast direccionado a dicha respectiva subred.
-
-## 7)
 
 ### b) 
 
@@ -293,9 +274,51 @@ En IPv6 hay una flexibilidad mayor para hacer broadcast; es posible hacer un bro
 
 En IPv6, las direcciones **link-local** (LLA) son válidas solo dentro de la misma red local. Las **unique-local** (ULA) son válidas dentro de una red privada, tampoco tiene validez en internet al igual que las LLA. Vale aclarar que la diferencia entre LLA y ULA radica en que una ULA puede aplicar a una WAN que no necesariamente es parte de internet. Por último las direcciones **global** (GUA) son públicas a todo el internet.
 
+---
+
 # Parte 2
 
 ## 1)
+
+El Cisco Catalyst 2950 es una serie de switches de configuración fija y administrados con capacidad de 10/100 Mbps, diseñado para pequeñas y medianas redes. Estos switches incluyen el software Standard Image (SI), que proporciona funcionalidades básicas para datos, voz y video.
+
+### Características de Hardware
+
+#### Puertos y Conectividad
+  - Disponible en configuraciones de 12, 24 o 48 puertos 10/100 Mbps según el modelo
+  - Puertos de enlace ascendente Gigabit Ethernet (modelos 2950SX con 2 puertos 1000BASE-SX fijos)
+  - Soporte para modos de comunicación Half-Duplex y Dúplex completo
+
+#### Memoria y Rendimiento
+  - 16 MB de DRAM para procesamiento
+  - 8 MB de memoria Flash para almacenamiento del sistema operativo
+  - 8 MB de buffer de paquetes compartido por todos los puertos
+  - Capacidad para configurar hasta 8,000 direcciones MAC
+  - Rendimiento de conmutación de 13.6 Gbps (en modelos superiores)
+  - Tasas de reenvío de entre 1.8 Mpps (modelo 2950-12) hasta 10.1 Mpps (modelos 2950T-48 y 2950SX-48)
+
+#### Diseño Físico
+  - Factor de forma: 1U para montaje en rack
+  - Dimensiones: 17.5 x 9.5 x 1.7 pulgadas (ancho x profundidad x altura)
+  - Formato apilable y adecuado para instalación en armarios de telecomunicaciones
+
+#### Funcionalidades Avanzadas
+
+Una de las características más importantes del Catalyst 2950 es la capacidad para implementar VLANs, permitiendo segmentar una red física en múltiples redes virtuales. Esto proporciona:
+  - Mayor seguridad al aislar grupos de trabajo
+  - Mejor rendimiento al reducir dominios de colisión y broadcast
+  - Facilidad de administración al agrupar usuarios lógicamente independientemente de su ubicación física
+
+#### Seguridad de Red
+  - Secure Shell version 2 (SSHv2) para encriptar información administrativa
+  - Private VLAN Edge para aislar puertos en un switch
+  - Seguridad basada en usuarios o direcciones MAC
+  - Control de acceso mediante autenticación IEEE 802.1x
+
+#### Rendimiento y Disponibilidad
+  - Fast EtherChannel para proporcionar alto rendimiento en enlaces entre switches, routers y servidores
+  - Múltiples enlaces ascendentes Gigabit para aumentar el ancho de banda hacia el núcleo de la red
+
 
 ## 2)
 
@@ -351,9 +374,7 @@ copy running-config startup-config
 
 La subred configurada en las 3 computadoras que se utilizaron para el experimento se configuraron en 192.168.0.X, máscara de subred 255.255.255.0. Las respectivas IP son 192.168.0.10 para la conectada al puerto 3 (mirroring), 192.168.0.20 al puerto 1, y 192.168.0.30 al puerto 2.
 
----
-
-## 6)
+## 3)
 
 ### a)  
 
@@ -375,66 +396,6 @@ Por ejemplo, en un datagrama IP capturado durante la comunicación entre dos hos
 
 - **Dirección IP de origen:** 192.168.0.20 → Esta es la dirección del dispositivo que envía el datagrama
 - **Dirección IP de destino:** 192.168.0.30 → Esta es la dirección del dispositivo al que va dirigido el datagrama
-
-# Conclusiones
-
-Este trabajo nos permitió implementar y analizar una red dual-stack IPv4/IPv6 utilizando herramientas de simulación de redes. Los resultados obtenidos demuestran claramente las diferencias entre los mecanismos de comunicación de ambos protocolos.
-
-Se observó que mientras IPv4 utiliza ARP con mensajes broadcast para resolver direcciones físicas, IPv6 implementa NDP con direcciones multicast solicited-node, resultando en una comunicación más eficiente. Las pruebas de conectividad mediante ICMP permitieron verificar el correcto funcionamiento del enrutamiento entre las distintas redes (192.168.1.0/24 y 192.168.2.0/24).
-
-El análisis del tráfico reveló cómo el router determina las rutas apropiadas basándose en sus tablas de enrutamiento, mientras que el switch opera exclusivamente en capa 2 sin necesidad de direccionamiento IP.
-
-Este laboratorio proporcionó una experiencia práctica fundamental para comprender los protocolos de comunicación modernos y las ventajas que IPv6 ofrece frente a las limitaciones de IPv4.
-# Parte 2
-
-## 1)
-
-El Cisco Catalyst 2950 es una serie de switches de configuración fija y administrados con capacidad de 10/100 Mbps, diseñado para pequeñas y medianas redes. Estos switches incluyen el software Standard Image (SI), que proporciona funcionalidades básicas para datos, voz y video.
-
-### Características de Hardware
-
-#### Puertos y Conectividad
-  - Disponible en configuraciones de 12, 24 o 48 puertos 10/100 Mbps según el modelo
-  - Puertos de enlace ascendente Gigabit Ethernet (modelos 2950SX con 2 puertos 1000BASE-SX fijos)
-  - Soporte para modos de comunicación Half-Duplex y Dúplex completo
-
-#### Memoria y Rendimiento
-  - 16 MB de DRAM para procesamiento
-  - 8 MB de memoria Flash para almacenamiento del sistema operativo
-  - 8 MB de buffer de paquetes compartido por todos los puertos
-  - Capacidad para configurar hasta 8,000 direcciones MAC
-  - Rendimiento de conmutación de 13.6 Gbps (en modelos superiores)
-  - Tasas de reenvío de entre 1.8 Mpps (modelo 2950-12) hasta 10.1 Mpps (modelos 2950T-48 y 2950SX-48)
-
-#### Diseño Físico
-  - Factor de forma: 1U para montaje en rack
-  - Dimensiones: 17.5 x 9.5 x 1.7 pulgadas (ancho x profundidad x altura)
-  - Formato apilable y adecuado para instalación en armarios de telecomunicaciones
-
-#### Funcionalidades Avanzadas
-
-Una de las características más importantes del Catalyst 2950 es la capacidad para implementar VLANs, permitiendo segmentar una red física en múltiples redes virtuales. Esto proporciona:
-  - Mayor seguridad al aislar grupos de trabajo
-  - Mejor rendimiento al reducir dominios de colisión y broadcast
-  - Facilidad de administración al agrupar usuarios lógicamente independientemente de su ubicación física
-
-#### Seguridad de Red
-  - Secure Shell version 2 (SSHv2) para encriptar información administrativa
-  - Private VLAN Edge para aislar puertos en un switch
-  - Seguridad basada en usuarios o direcciones MAC
-  - Control de acceso mediante autenticación IEEE 802.1x
-
-#### Rendimiento y Disponibilidad
-  - Fast EtherChannel para proporcionar alto rendimiento en enlaces entre switches, routers y servidores
-  - Múltiples enlaces ascendentes Gigabit para aumentar el ancho de banda hacia el núcleo de la red
-
-## 2)
-
-## 3)
-
-### a)
-
-### b)
 
 ### c)
 
@@ -464,14 +425,14 @@ Los switches de capa 2, como el Cisco Catalyst 2950, no necesitan direcciones IP
 ---
 
 # Discusión y conclusiones
+ 
+En este trabajo, se han analizado diversos protocolos fundamentales para la comunicación en redes, como ARP, IPv4, IPv6, NDP e ICMP, así como la función de switches y routers en la interconexión de dispositivos. Mediante la simulación en Cisco Packet Tracer, se pudo observar el comportamiento de estos protocolos en entornos de red, resaltando la interacción entre dispositivos y los mecanismos de resolución de direcciones en los diferentes niveles del modelo TCP/IP.  
 
-A lo largo de este trabajo, se han explorado y analizado diversos protocolos fundamentales para la comunicación en redes, incluyendo ARP, IPv4, IPv6, NDP e ICMP, así como la funcionalidad de switches y routers en la interconexión de dispositivos. Mediante la simulación en Cisco Packet Tracer, se ha podido observar el comportamiento de estos protocolos en entornos de red, destacando la interacción entre dispositivos y la resolución de direcciones a distintos niveles del modelo TCP/IP.
+Uno de los aspectos clave fue el papel de ICMP en la verificación de conectividad y detección de problemas en la red. Se evidenció que, mientras en IPv4 el protocolo ARP se encarga de mapear direcciones IP a MAC mediante mensajes broadcast, en IPv6 esta función es reemplazada por NDP, que emplea direcciones multicast solicited-node, optimizando la comunicación. Además, las pruebas realizadas permitieron verificar el correcto enrutamiento de paquetes entre distintas subredes, como 192.168.1.0/24 y 192.168.2.0/24.  
 
-Uno de los temas clave fue el funcionamiento de ICMP en la verificación de conectividad y la detección de problemas en la red. En IPv4, ARP es utilizado para mapear direcciones IP a MAC, mientras que en IPv6, esta función es reemplazada por NDP.
+El análisis del tráfico reveló cómo los routers determinan las rutas adecuadas basándose en sus tablas de enrutamiento y los protocolos de descubrimiento de vecinos. Asimismo, se comprendió la función del switch en la segmentación de redes locales, operando en la capa 2 para el reenvío de tramas sin necesidad de direccionamiento IP. En este contexto, el Cisco Catalyst 2950 demostró ser una solución confiable para redes pequeñas y medianas, ofreciendo capacidades avanzadas como VLANs y seguridad basada en MAC.  
 
-La simulacion también permitió comprender cómo un router determina el enrutamiento de paquetes entre subredes, haciendo uso de su tabla de enrutamiento y protocolos de descubrimiento de vecinos. Así mismo, se analizó el rol del switch en la segmentación de redes locales, facilitando la comunicación eficiente a nivel de capa 2 y reenvío de tramas basadas en direcciones MAC.
-
-En cuanto al hardware, el Cisco Catalyst 2950 es una solución confiable para redes pequeñas y medianas, ofreciendo capacidades avanzadas como VLANs y seguridad basada en MAC. 
+En general, este laboratorio proporcionó una experiencia práctica fundamental para comprender los protocolos de comunicación modernos y las ventajas que IPv6 presenta frente a las limitaciones de IPv4, destacando la importancia de la simulación para reforzar conceptos clave en redes de datos.
 
 ---
 
