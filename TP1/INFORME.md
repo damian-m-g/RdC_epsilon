@@ -4,7 +4,9 @@
 ### Nombres _(por órden alfabético)_
 
 _Gil Cernich Manuel (manuel.gil.cernich@mi.unc.edu.ar)_
+
 _González Damián M. (damian.gonzalez@mi.unc.edu.ar)_
+
 _Zuñiga Ivan A. (ivan.zuniga@mi.unc.edu.ar)_
 
 ### Nombre del grupo
