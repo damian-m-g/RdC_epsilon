@@ -46,6 +46,8 @@ Este trabajo indaga en los protocolos:
 
 En esta primera parte del trabajo práctico construiremos un diagrama de red utilizando el software de simulación Packet Tracer. Se procederá a configurar los 5 dispositivos, tal como está definido en la **Tabla de asignación de direcciones propuestas**. A continuación, a posteriori de abarcar cuestiones del plano teórico, se procederá a realizar una serie de pruebas entre los hosts, dejando constancia del resultado, y respondiendo una serie de preguntas al respecto.
 
+En la segunda parte del trabajo, nos enfocaremos en el análisis y configuración de un switch de la serie Cisco Catalyst 2950, estudiando sus características, funcionalidades y capacidades de administración en redes. Exploraremos aspectos como el direccionamiento MAC, la implementación de VLANs y los protocolos utilizados en la comunicación entre dispositivos dentro de una red conmutada. Además, realizaremos configuraciones prácticas para observar su comportamiento en distintos escenarios de red, comparándolo con las configuraciones previamente implementadas en Packet Tracer.
+
 ---
 
 # Marco teórico
