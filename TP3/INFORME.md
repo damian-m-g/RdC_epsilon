@@ -108,6 +108,8 @@ Cada clase tiene un rango específico de direcciones y se usa para organizar y a
 
 ## 3)
 
+_NOTA: Aquí también se realizó el punto 5)a)._
+
 ### Configuración R1
 
 ```text
@@ -260,6 +262,109 @@ Se utilizó el comando: `show ip route ospf`, que permite verificar que cada rou
 ---
 
 ## 5)
+
+_NOTA: El punto 5)a) es realizó conjuntamente al punto 3). Ver mas arriba._
+
+### Lectura de entradas en la LSDB de cada router
+
+#### R1
+
+![14.png](imagenes/14.png)
+
+#### R2
+
+![15.png](imagenes/15.png)
+
+#### R3
+
+![16.png](imagenes/16.png)
+
+#### R4
+
+![17.png](imagenes/17.png)
+
+#### R5
+
+![18.png](imagenes/18.png)
+
+---
+
+## 6)
+
+_NOTA: No puede existir tal cosa como área "A" o "B"; el valor esperado en ese parámetro es numérico, por lo que se usará 0 y 1 respectivamente. Los routers R1 y R2 ya están configurados correctamente en area 0._
+
+### Configuración R3
+
+```text
+enable
+configure terminal
+router ospf 1
+network 192.168.100.4 0.0.0.3 area 0
+network 192.168.100.8 0.0.0.3 area 0
+network 192.168.100.12 0.0.0.3 area 1
+network 192.168.100.16 0.0.0.3 area 1
+```
+
+### Configuración R4
+
+```text
+enable
+configure terminal
+router ospf 1
+network 172.16.40.0 0.0.0.255 area 1
+network 192.168.100.12 0.0.0.3 area 1
+network 192.168.100.20 0.0.0.3 area 1
+```
+
+### Configuración R5
+
+```text
+enable
+configure terminal
+router ospf 1
+network 172.16.50.0 0.0.0.255 area 1
+network 192.168.100.20 0.0.0.3 area 1
+network 192.168.100.16 0.0.0.3 area 1
+```
+
+### Lectura de entradas en la LSDB de cada router
+
+#### R1
+
+![19.png](imagenes/19.png)
+
+#### R2
+
+![20.png](imagenes/20.png)
+
+#### R3
+
+![21.PNG](imagenes/21.PNG)
+
+#### R4
+
+![22.PNG](imagenes/22.PNG)
+
+#### R5
+
+![23.PNG](imagenes/23.PNG)
+
+---
+
+## 7)
+
+### a)
+
+![24.png](imagenes/24.png)
+
+### b)
+
+![25.png](imagenes/25.png)
+![26.png](imagenes/26.png)
+
+---
+
+## 8)
 
 
 
