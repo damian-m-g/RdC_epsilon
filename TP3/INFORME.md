@@ -293,6 +293,8 @@ _NOTA: El punto 5)a) es realizó conjuntamente al punto 3). Ver mas arriba._
 
 _NOTA: No puede existir tal cosa como área "A" o "B"; el valor esperado en ese parámetro es numérico, por lo que se usará 0 y 1 respectivamente. Los routers R1 y R2 ya están configurados correctamente en area 0._
 
+![32.png](imagenes/32.png)
+
 ### Configuración R3
 
 ```text
@@ -339,15 +341,15 @@ network 192.168.100.16 0.0.0.3 area 1
 
 #### R3
 
-![21.PNG](imagenes/21.PNG)
+![21.png](imagenes/21.png)
 
 #### R4
 
-![22.PNG](imagenes/22.PNG)
+![22.png](imagenes/22.png)
 
 #### R5
 
-![23.PNG](imagenes/23.PNG)
+![23.png](imagenes/23.png)
 
 ---
 
@@ -366,18 +368,51 @@ network 192.168.100.16 0.0.0.3 area 1
 
 ## 8)
 
+En este item, lo que se hará es modificar manualmente el **costo** de la _rama_ que va desde R3 a R4 directamente, de modo que antes a esta modificación, un paquete que _desea_ viajar desde **h1** hacia **h4**, tome el camino: h1 -> S1 -> R2 -> R3 -> R4 -> h4; y después de la modificación tome el camino: h1 -> S1 -> R2 -> R3 -> R5 -> R4 -> h4.  
 
+La siguiente es una captura de `tracert` desde **h1** hacia **h4**, previa a cualquier modificación. Como se puede observar, las marcas de tiempo corresponden respectivamente a h1 -> R3 -> R4 -> h4:
+
+![27.png](imagenes/27.png)
+
+Luego se procede a realizar la modificación de costo en R3 -> R4:
+
+![28.png](imagenes/28.png)
+
+Como se pudo observar en la imagen previa, se establece el costo de esa _rama_ en 1000, un número mucho mayor al que OSPF asigna automáticamente de acuerdo al ancho de banda de cada rama, que al utilizar elementos estándar en Cisco Packet Tracer, no supera el valor 100 (dependiendo qué rama, oscila entre 1~64). La espectativa es entonces esperar R3 -> R5 -> R4 en el siguiente `tracert`:
+
+![29.png](imagenes/29.png)
+
+**Efectivamente ello sucede**. _Luego de este item, re-establecimos las configuraciones a las que teníamos hasta el punto 5, para hacer los siguientes items._
 
 ---
 
-# Discusión y conclusiones
+## 9)
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tempor, mauris sit amet aliquet vestibulum, enim ante consectetur enim, vel sollicitudin odio risus vel libero. Integer eget ipsum sed eros luctus laoreet vel vel leo. Fusce ut dapibus nisl. Aliquam erat volutpat. Donec in elit non justo convallis vestibulum.
+Parte de estos pasos ya se realizó en el item 2), cuando se hizo el esquema de red en Cisco Packet Tracer.
+
+Se hayó que _CiscoOS_ no te permite establecer como ruta estática predeterminada una dirección de loopback, y si se utiliza una ficticia, no funciona el paso c), es decir, no queda impactada la idea en la _red OSPF_.
+
+La solución hayada fué establecer como ruta estática predeterminada la dirección IP de alguna NIC (input) siguiente a una NIC cualquiera de salida de R1:
+
+![30.png](imagenes/30.png)
+
+Como se pudo observar en los 2 comandos _del medio_, allí se implica _dejar asentado_ en R1 que él tiene _salida a la internet_, información que será utilizada por todos los routers del esquema si no logran ubicar adonde mandar el paquete, ergo se manda a la interfaz seleccionada como "por defecto".  
+
+Aquí se puede comprobar desde R3, que _ya le llegó_ esta información:
+
+![31.png](imagenes/31.png)
+
+---
+
+# Conclusiones
+
+OSPF es actualmente dentro de los protocolos del género al que pertenece, el mas utilizado. Su algoritmo que mide el ancho de banda de cada _rama_ y genera costos para cada una de ellas, y la capacidad de compartir esta información _aguas abajo y arriba_ dentro del lugar que ocupa en la red, lo hacen una excelente idea para calcular el camino _menos costoso_.
 
 ---
 
 # Referencias
 
-[1] Consultar [Normas APA](https://normas-apa.org/referencias/)  
-[2] ...  
-[3] ...  
+- Stallings, W. (2004). _Comunicaciones y Redes de Computadores. Séptima edición_. Pearson.
+- Autores varios. _[Open Shortest Path First](https://es.wikipedia.org/wiki/Open_Shortest_Path_First)_. Wikipedia.
+- Autores varios. [OSPF Area Types and Accepted LSAs](https://www.juniper.net/documentation/us/en/software/junos/ospf/topics/topic-map/configuring-ospf-areas.html#id-understanding-ospf-areas__d34608e148). Juniper.
+- Autores varios. [Configuring OSPF Areas](https://www.juniper.net/documentation/us/en/software/junos/ospf/topics/topic-map/configuring-ospf-areas.html#id-understanding-ospf-stub-areas-totally-stubby-areas-and-not-so-stubby-areas?ref=packetcoders.io). Juniper.
