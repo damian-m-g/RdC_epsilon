@@ -33,13 +33,9 @@ Este trabajo está enfocado en el **enrutamiento dinámico**, cual es una de las
 
 **Palabras clave**: _Capa 3 OSI, capa de red, enrutamiento, enrutamiento dinámico, OSPF._
 
----
-
 # Introducción
 
 El trabajo está dividido en 11 items guía, planteados en la consigna. Se utilizó Cisco Packet Tracer para la simulación de las diversas partes prácticas.
-
----
 
 # Desarrollo
 
@@ -69,8 +65,6 @@ Una forma de caracterizar tipos de redes, es por su **clase**: A, B o C. Se refi
 - **Clase C**: Redes pequeñas (192.0.0.0 - 223.255.255.255).
 
 Cada clase tiene un rango específico de direcciones y se usa para organizar y asignar redes de acuerdo con su tamaño.
-
----
 
 ## 2)
 
@@ -103,8 +97,6 @@ Cada clase tiene un rango específico de direcciones y se usa para organizar y a
 | R4          | S0/3/1    | 192.168.100.21 | 255.255.255.252 | 192.168.100.20/30 | Enlace R4 ↔ R5     |
 | R5          | S0/3/0    | 192.168.100.22 | 255.255.255.252 | 192.168.100.20/30 | Enlace R4 ↔ R5     |
 | R1          | Loopback0 | 1.1.1.1        | 255.255.255.255 | -                 | Loopback Router ID |
-
----
 
 ## 3)
 
@@ -210,8 +202,6 @@ Se utilizó el comando: `show ip route ospf`, que permite verificar que cada rou
 
 ![008.png](imagenes/08.png)
 
----
-
 ## 4)
 
 ### HELLO
@@ -259,8 +249,6 @@ Se utilizó el comando: `show ip route ospf`, que permite verificar que cada rou
 
 **Impacto**: proporciona confiabilidad al protocolo, evitando pérdidas de información.
 
----
-
 ## 5)
 
 _NOTA: El punto 5)a) es realizó conjuntamente al punto 3). Ver mas arriba._
@@ -286,8 +274,6 @@ _NOTA: El punto 5)a) es realizó conjuntamente al punto 3). Ver mas arriba._
 #### R5
 
 ![18.png](imagenes/18.png)
-
----
 
 ## 6)
 
@@ -364,8 +350,6 @@ network 192.168.100.16 0.0.0.3 area 1
 ![25.png](imagenes/25.png)
 ![26.png](imagenes/26.png)
 
----
-
 ## 8)
 
 En este item, lo que se hará es modificar manualmente el **costo** de la _rama_ que va desde R3 a R4 directamente, de modo que antes a esta modificación, un paquete que _desea_ viajar desde **h1** hacia **h4**, tome el camino: h1 -> S1 -> R2 -> R3 -> R4 -> h4; y después de la modificación tome el camino: h1 -> S1 -> R2 -> R3 -> R5 -> R4 -> h4.  
@@ -384,8 +368,6 @@ Como se pudo observar en la imagen previa, se establece el costo de esa _rama_ e
 
 **Efectivamente ello sucede**. _Luego de este item, re-establecimos las configuraciones a las que teníamos hasta el punto 5, para hacer los siguientes items._
 
----
-
 ## 9)
 
 Parte de estos pasos ya se realizó en el item 2), cuando se hizo el esquema de red en Cisco Packet Tracer.
@@ -402,13 +384,155 @@ Aquí se puede comprobar desde R3, que _ya le llegó_ esta información:
 
 ![31.png](imagenes/31.png)
 
----
+## 10)
+
+En OSPF, cada router construye su LSDB (Link-State Database), que es esencialmente su "mapa" detallado de la topología de red dentro de su área. Este mapa se arma con la información que llega en los LSAs (Link-State Advertisements). Estos LSAs son como mensajes que los routers generan para describir su estado y conexiones.
+
+Para que todos los routers compartan esta información y construyan el mismo mapa, utilizan un mecanismo llamado inundación (flooding): cuando un router genera o recibe un LSA nuevo o actualizado, lo envía a sus vecinos OSPF. Estos vecinos, a su vez, lo guardan y lo reenvían a sus otros vecinos (excepto por donde llegó). Este proceso se repite, asegurando que el LSA "inunde" y se propague rápidamente por toda la zona designada (como un área OSPF), distribuyendo así la información.
+
+Existen diferentes tipos de LSAs, cada uno especializado en describir una parte distinta de la topología. A continuación, se detallarán algunas de ellas:
+
+- **LSA Tipo 1 (Router LSA):**  
+  Lo genera cada router para describirse a sí mismo y sus conexiones directas (sus enlaces o interfaces) dentro de su propia área.  
+  Es la información básica de "quién soy y a qué estoy conectado localmente".
+
+- **LSA Tipo 2 (Network LSA):**  
+  Lo genera el Router Designado (DR) en redes compartidas (como Ethernet) para describir qué routers están conectados a esa misma red dentro del área.  
+  Ayuda a mapear esas redes multiacceso.
+
+- **LSA Tipo 3 (Summary LSA):**  
+  Lo generan los ABRs (Area Border Routers) para anunciar las redes de un área hacia otras áreas.  
+  Permiten la comunicación entre diferentes zonas del OSPF.
+
+Estos distintos tipos de LSAs, cada uno con su función y alcance, son las piezas que, juntas, forman la LSDB completa en cada router, permitiéndole tener una visión detallada tanto de su propia área como de la conectividad hacia otras áreas y redes externas.
+
+El objetivo final sigue siendo que todos los routers en un área tengan la misma LSDB.
+
+Cuando ocurre un fallo (como la caída de una interfaz), los routers afectados envían LSAs actualizados (del tipo correspondiente al cambio), lo que modifica las LSDBs de los demás routers y los obliga a recalcular sus rutas (vía SPF) basándose en el mapa actualizado.
+
+Esto es lo que veremos en detalle a continuación para cada escenario de fallo.
+
+## Caída de la Interfaz R2 - R1:
+
+### Impacto Inmediato:
+La adyacencia OSPF entre R1 y R2 se cae. Ya no intercambian Hellos ni LSAs por ese enlace directo.
+
+### Cambios en LSAs y LSDB:
+
+#### Área A:
+- R1 actualiza su LSA de Tipo 1, eliminando el enlace a R2. Mantiene el enlace a R3 (que cruza al área B). Realiza un flooding de este LSA actualizado en el área A.
+- R2 actualiza su LSA de Tipo 1, eliminando el enlace a R1. Mantiene los enlaces a R3 (inter-área) y a S1 (intra-área). Realiza un flooding de este LSA actualizado en el área A.
+- Las LSDBs de R1 y R2 (para el área A) se actualizan para reflejar la pérdida del enlace directo R1-R2.
+
+#### Área B:
+- No hay cambios directos en los LSAs de Tipo 1 o Tipo 2 dentro del área B originados por R3, R4 o R5 debido a esta falla específica.
+- Los LSAs de Tipo 3 generados por los ABRs (R2 y R3) podrían recalcularse si el costo o la ruta preferida hacia alguna red en el área A cambia. R3 todavía tiene conexión directa tanto a R1 como a R2 (por enlaces separados).
+
+### Impacto en el Enrutamiento:
+
+- **R1**: Pierde la ruta directa a R2. No queda aislado. Sigue conectado a R3. Recalcula sus rutas (mediante SPF) y ahora alcanzará a R2 y a la LAN de S1 a través de R3 (`R1 -> R3 -> R2`). Mantiene conectividad con el área B directamente vía R3.
+- **R2**: Pierde la ruta directa a R1. Recalcula sus rutas y ahora alcanzará R1 a través de R3 (`R2 -> R3 -> R1`). Mantiene conectividad con S1 (local) y con el área B directamente vía R3.
+- **R3, R4, R5**: Recalculan sus rutas. Pueden experimentar un cambio en el costo o la ruta preferida para llegar a R1 o R2, pero la conectividad general se mantiene intacta ya que R3 sigue conectado a ambos (R1 y R2) y al resto del área B.
+
+## Caída de la Interfaz R2 - R3:
+
+### Impacto Inmediato:
+La adyacencia OSPF entre R2 y R3 se cae.
+
+### Cambios en LSAs y LSDB:
+
+#### Área A:
+- R2 actualiza su LSA de Tipo 1, eliminando el enlace a R3. Mantiene los enlaces a R1 y S1. Realiza un flooding en el Área A.
+- Como ABR, R2 dejará de actualizar LSAs de Tipo 3 hacia el área A que describan las redes del área B, aprendidas únicamente a través de R3. Sin embargo, R1 (conectado a R3) todavía puede recibir información del área B vía R3.
+- LSDBs en el área A (R1, R2) se actualizan.
+
+#### Área B:
+- R3 actualiza su LSA de Tipo 1, eliminando el enlace a R2. Mantiene los enlaces a R1, R4 y R5. Realizar un flooding en el área B.
+- Como ABR, R3 dejará de actualizar LSAs de Tipo 3 hacia el área B que describan redes del área A aprendidas únicamente a través de R2 (como S1). Aún puede anunciar redes del área A aprendidas vía R1.
+- LSDBs en Área B (R3, R4, R5) se actualizan.
+
+### Impacto en el Enrutamiento:
+
+- **R1, R2**: Pierden la ruta hacia el área B a través de R2. R1 aún puede alcanzar el área B directamente vía R3. R2 ahora debe enrutar hacia el área B a través de R1 (`R2 -> R1 -> R3 -> Área B`). La conectividad se mantiene pero la ruta para R2 cambia.
+- **R3, R4, R5**: Pierden la ruta hacia S1 (y hacia R2) a través del enlace directo R3-R2. Aún pueden alcanzar R1 directamente vía R3. Para alcanzar R2 y S1, ahora deben usar la ruta `R3 -> R1 -> R2`. La conectividad se mantiene pero la ruta cambia.
+
+## Caída de la Interfaz R2 - S1:
+
+### Impacto Inmediato:
+R2 pierde conectividad con S1 (h1, h2, h3).
+
+### Cambios en LSAs y LSDB:
+
+#### Área A:
+- R2 actualiza su LSA de Tipo 1, eliminando la información del enlace/red hacia S1. Mantiene enlaces a R1 y R3. Realiza un flooding en el área A.
+- Si existía un LSA de Tipo 2 para ese segmento, deja de generarse o expira.
+- Las LSDBs de R1 y R2 se actualizan, eliminando la red de S1 de la topología intra-área conocida.
+
+#### Área B:
+- R2 (como ABR) dejará de generar el LSA de Tipo 3 que anunciaba la red de S1 hacia el Área B (porque ya no la conoce intra-área).
+- R3 (como ABR) también dejará de anunciar la red de S1 hacia el Área B (ya que tampoco la aprenderá de R2 o R1).
+- Las LSDBs en R3, R4, R5 eventualmente eliminarán la entrada del LSA Tipo 3 correspondiente a la red de S1.
+
+### Impacto en el Enrutamiento:
+
+- **R1, R2**: Pierden la ruta hacia la red de S1 (h1, h2, h3). Mantienen plena conectividad entre sí (vía R1-R2 y/o R1-R3-R2) y con toda el Área B (vía R1-R3 y/o R2-R3).
+- **R3, R4, R5**: Pierden la ruta hacia la red de S1. Mantienen plena conectividad con R1, R2 y dentro del Área B.
+
+## 11)
+
+La RIB (Routing Information Base) y la FIB (Forwarding Information Base),ambas contienen rutas de red, pero no son lo mismo. A continuación, se presentará un análisis de cada una.
+
+### RIB: Routing Information Base
+
+- Es la tabla maestra de rutas del router.
+- Contiene todas las rutas conocidas, sean activas, inactivas o alternativas.
+- Se alimenta de:
+  - Protocolos de enrutamiento.
+  - Rutas estáticas configuradas por el administrador.
+  - Rutas directamente conectadas.
+- Se construye en el plano de control.
+- Puede contener múltiples rutas hacia un mismo destino.
+- Se consulta con `show ip route`.
+
+### FIB: Forwarding Information Base
+
+- Tabla optimizada para reenviar paquetes rápidamente.
+- Contiene solo las mejores rutas activas seleccionadas a partir de la RIB.
+- Está diseñada para búsquedas rápidas.
+- Opera en el plano de datos, usa la FIB previamente construída.
+- Incluye información de reescritura de capa 2, como direcciones MAC y datos de encapsulamiento.
+- En routers Cisco, puede visualizarse mediante el comando: `show ip cef`.
+
+### Justificación basada en la práctica.
+
+> **Nota sobre Packet Tracer**: El comando `show ip cef`, utilizado para visualizar la FIB en routers Cisco reales, no está disponible en Packet Tracer, ya que CEF no está completamente implementado en este entorno de simulación.  
+> A pesar de esta limitación, es posible inferir el funcionamiento de la FIB observando las rutas activas en la RIB mediante el comando `show ip route`.
+
+En la siguiente imagen, mostrada anteriormente, se presenta la tabla de rutas (`RIB`) del router R3:
+
+![31.png](imagenes/31.png)
+
+- Las líneas que comienzan con `O` indican rutas aprendidas por OSPF y sus métricas están entre corchetes (`[110/x]`), donde `110` es la distancia administrativa (AD).
+- Se visualizan múltiples rutas a diferentes destinos, incluyendo:
+  - Rutas internas (`C`), conectadas directamente.
+  - Rutas locales (`L`), generadas automáticamente para cada dirección IP asignada a una interfaz del router.
+  - Rutas dinámicas (`O`), aprendidas mediante OSPF.
+
+
+Lo que vemos en esta tabla es la RIB, que contiene toda la información de enrutamiento conocida por el router, tanto activa como inactiva. Es la base de datos central que mantiene el plano de control. A partir de ella se seleccionan las mejores rutas para cada destino.
+
+Por otro lado, la FIB, que no es visible directamente en Packet Tracer, contiene únicamente las rutas activas seleccionadas de la RIB, formateadas para permitir decisiones de reenvío rápidas por el plano de datos.
+
+Una forma de inferir qué está en la FIB es observar qué rutas en la RIB tienen un asterisco `*`, estas son las rutas activas. Por ejemplo, la entrada:
+
+```
+O*E2 0.0.0.0/0 [110/1] via 192.168.100.9, Serial0/3/1
+```
+La misma indica que se trata de una ruta por defecto aprendida por OSPF externo (tipo E2), utilizada como ruta activa para reenviar cualquier tráfico sin coincidencia más específica. Al estar marcada con `*`, forma parte de la FIB y se usa para enviar paquetes a través de `Serial0/3/1` hacia `192.168.100.9`.
 
 # Conclusiones
 
 OSPF es actualmente dentro de los protocolos del género al que pertenece, el mas utilizado. Su algoritmo que mide el ancho de banda de cada _rama_ y genera costos para cada una de ellas, y la capacidad de compartir esta información _aguas abajo y arriba_ dentro del lugar que ocupa en la red, lo hacen una excelente idea para calcular el camino _menos costoso_.
-
----
 
 # Referencias
 
