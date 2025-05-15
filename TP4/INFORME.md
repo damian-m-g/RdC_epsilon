@@ -248,6 +248,32 @@ A continuación, se presenta la información del AS303, que está vinculado a mi
 
 El 4 de octubre de 2021, los servicios de Facebook, incluyendo Instagram, WhatsApp y Messenger, sufrieron una interrupción global durante aproximadamente 6 a 7 horas, dejando a miles de millones de usuarios sin acceso. Esta caída fue provocada por un problema crítico en el protocolo de enrutamiento BGP.
 
+#### Causa principal
+
+* Un error de configuración en los routers troncales de Facebook provocó la caída de las rutas BGP hacia los servidores DNS autoritativos de la empresa.
+
+* Al desaparecer estas rutas del enrutamiento global, los dominios de Facebook se volvieron irresolubles, haciendo imposible que los usuarios accedieran a la plataforma.
+
+* Esta retirada fue consecuencia de un comando ejecutado durante un mantenimiento rutinario, el cual, por error, desconectó a todos los centros de datos de Facebook entre sí y del exterior.
+
+#### Consecuencias
+
+- **Servicios interrumpidos globalmente**:  
+  -  Facebook, Instagram, WhatsApp, Messenger, Oculus, Mapillary y herramientas internas.
+
+- **Impacto económico**:
+  - Pérdida estimada de **60 millones de dólares** en ingresos publicitarios.
+  - Reducción de más de **6 mil millones de dólares** en el valor personal del CEO.
+
+- **Impacto operativo**:
+  - Inaccesibilidad de herramientas internas clave (comunicaciones, acceso físico a edificios, sistemas de recuperación).
+  - Dificultades para restaurar el servicio debido a la dependencia de sistemas internos afectados por la misma falla.
+
+#### Cascada de fallos
+
+El incidente evidenció un acoplamiento peligroso entre el plano de control (BGP), el DNS y los sistemas internos de gestión. Al fallar el enrutamiento BGP, se desactivaron los servidores DNS y, con ellos, toda la plataforma digital de Facebook.
+
+
 ---
 
 ## Parte II - Simulaciones y análisis
