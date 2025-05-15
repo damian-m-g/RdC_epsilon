@@ -302,13 +302,124 @@ Se observa:
 
 ## 4)
 
+### Configuración IPv6 para toda la red
 
+**PC0**:
+
+![08.png](imagenes/08.png)
+
+**PC1**:
+
+![09.png](imagenes/09.png)
+
+**PC2**:
+
+![10.png](imagenes/10.png)
+
+**PC3**:
+
+![11.png](imagenes/11.png)
+
+**Router0**:
+
+![12.png](imagenes/12.png)
+
+**Router1**:
+
+![13.png](imagenes/13.png)
+
+Dentro de cada AS, se observa conectividad entre todos los hosts. De AS a AS, no se observa conectividad. Se supuso que es debido a que no está configurado BGP para IPv6. Se intentó hacer, comenzando desde el **Router0**:
+
+![14.png](imagenes/14.png)
+
+...pero se concluyo que todos los comandos que han de configurar ello, no son reconocido en el router Cisco 1841 virtual de Cisco Packet Tracer, como se pudo observar en la imagen. Esta plataforma y versión de Cisco IOS, no soportarían BGP multiprotocolo (IPv4 **e** IPv6), _ni la configuración de address-family para IPv6_.
+
+## 5)
+
+### Tabla de direccionamiento
+
+| Dispositivo | Interfaz | IPv4           | IPv6            | Descripción             |
+|:------------|----------|----------------|-----------------|-------------------------|
+| PC0         | Fa0      | 192.168.1.2/24 | FD00:100::20/64 | Host en AS 100          |
+| PC1         | Fa0      | 192.168.1.3/24 | FD00:100::30/64 | Host en AS 100          |
+| PC2         | Fa0      | 192.168.2.2/24 | FD00:200::20/64 | Host en AS 200          |
+| PC3         | Fa0      | 192.168.2.3/24 | FD00:200::30/64 | Host en AS 200          |
+| Router0     | FE0/0    | 10.0.0.1/24    | FD00::1/64      | En subred entre routers |
+| Router0     | FE0/1    | 192.168.1.1/24 | FD00:100::1/64  | Gateway en AS 100       |
+| Router1     | FE0/0    | 10.0.0.2/24    | FD00::2/64      | En subred entre routers |
+| Router1     | FE0/1    | 192.168.2.1/24 | FD00:200::1/64  | Gateway en AS 200       |
+
+## 6)
+
+![15.png](imagenes/15.png)
+
+## 7) & 8) & 9)
+
+Tras agregar el nuevo router y host en AS 100, procedimos reemplazar las rutas estáticas existentes en AS 100 por OSPF. Este protocolo de enrutamiento interno facilita la detección automática de rutas, y ofrece una mejor escalabilidad en comparación con las rutas estáticas.
+
+Para llevar a cabo esta configuración, es necesario anunciar ambas redes internas de AS 100 dentro del área 0, que corresponde al área backbone principal de OSPF. De igual forma, se debe incluir el enlace punto a punto para asegurar la comunicación entre los routers. A continuación, se configurará ambos routers para IPv4 e IPv6.
+
+![16.png](imagenes/16.png)
+
+Primero, iniciamos el proceso OSPF con el identificador `1` utilizando el comando `router ospf 1`. Posteriormente, mediante `network [IP] [mask] area [area_x]`, incorporamos la red correspondiente dentro del área _0_, que es el área principal de OSPF. Cabe destacar que la máscara 0.0.0.3 equivale a una máscara /30, mientras que 0.0.0.255 corresponde a /24.
+
+En cuanto a OSPFv3 para IPv6, la asignación del área se realiza directamente en la interfaz con el comando `ipv6 ospf [id] area [area_x]`.
+
+Una vez que OSPF está configurado en AS 100, se verifica la correcta propagación de las rutas utilizando los comandos `show ip route` para IPv4 y `show ipv6 route` para IPv6.
+
+**Router2**:
+
+![17.png](imagenes/17.png)
+
+**Router0**:
+
+![18.png](imagenes/18.png)
+
+Las rutas provenientes de OSPF se identifican con la letra _O_, como se puede ver en las imágenes.
+
+En el **Router2**, podemos observar la ruta correspondiente a la red interna del **Router0**, tanto en IPv6 (2001:DB8:100::/64) como en IPv4 (192.168.1.0/24). De manera similar, en el **Router0** se visualizan las rutas de la red interna del **Router2**, en IPv6 (2001:DB8:104::/64) y en IPv4 (192.168.4.0/24).
+
+Ahora, con la configuración OSPF ya implementada en AS 100, el siguiente paso es redistribuir estas rutas dentro de BGP.
+
+Primero, es fundamental eliminar todas las rutas estáticas que se hayan configurado previamente, para cumplir con el objetivo planteado. Posteriormente, procederemos a la redistribución de las rutas OSPF en BGP, lo que permitirá que el enrutamiento se maneje de manera dinámica.
+
+Finalmente, configuraremos tanto el **Router0** como el **Router1** para llevar a cabo esta redistribución.
+
+![19.png](imagenes/19.png)
+
+En las imágenes mostradas, se pueden ver algunos comandos clave utilizados:
+
+- `router bgp [AS]`: inicia el proceso BGP para el sistema autónomo especificado.
+- `neighbor [IP] remote-as [AS]`: configura una sesión BGP con el router remoto indicado.
+- `redistribute ospf 1`: en el **Router0**, permite que las rutas aprendidas por OSPF se propaguen dentro del dominio BGP.
+- `network ...`: en el **Router1**, se anuncia explícitamente una red local dentro de BGP (solo en este router).
+
+Es importante destacar que fue necesario ejecutar el comando `clear ip bgp *` para que las tablas de enrutamiento mostradas a continuación reflejen las rutas redistribuidas vía BGP.
+
+**Router0**:
+
+![20.png](imagenes/20.png)
+
+**Router1**:
+
+![21.png](imagenes/21.png)
+
+Las rutas BGP se identifican en las tablas con la letra _B_. Analizando estas tablas, podemos concluir que:
+
+- El **Router1** ha aprendido, a través de BGP, las redes _192.168.1.0/24_ y _192.168.4.0/24_, ambas pertenecientes al AS 100.
+- El **Router0** ha recibido la red _192.168.2.0/24_, correspondiente al AS 200, desde el **Router1** mediante BGP.
+
+Finalmente, dado que ambos sistemas autónomos están interconectados gracias a BGP, podemos verificar la conectividad entre ellos realizando pings desde PC4.
+
+![22.png](imagenes/22.png)
+
+Como se aprecia en la anterior imagen, los pings se completan con éxito, confirmando conectividad entre AS 100 y AS 200. Esto permite afirmar que, gracias a la redistribución de OSPF en BGP, el **Router1**, que forma parte del sistema autónomo AS 200, puede acceder plenamente a las subredes de AS 100. La interconexión entre ambos sistemas autónomos funciona correctamente, haciendo _fácil_ la comunicación entre dispositivos como el host PC2 en AS 200 y el host PC4 en AS 100, lo que valida la efectividad del enrutamiento dinámico implementado mediante estos protocolos.
 
 ---
 
 # Conclusiones
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tempor, mauris sit amet aliquet vestibulum, enim ante consectetur enim, vel sollicitudin odio risus vel libero. Integer eget ipsum sed eros luctus laoreet vel vel leo. Fusce ut dapibus nisl. Aliquam erat volutpat. Donec in elit non justo convallis vestibulum.
+Se logró un aprendisaje bastante profundo acerca de enrutamientos configurables dentro de LANs y WANs, utilizando BGP (con sus respectivos AP) y OSPF. BGP se implementó para gestionar el enrutamiento entre sistemas autónomos, permitiendo una comunicación flexible y controlada entre subredes distintas, fundamental para la interconexión a gran escala y la gestión de políticas de enrutamiento. OSPF pudo integrarse satisfactoriamente a este trabajo, donde se volcó lo aprendido en el Trabajo Práctico N° 3.
 
 ---
 
