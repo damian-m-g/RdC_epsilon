@@ -256,7 +256,7 @@ Esquema topológico utilizado:
 
 ![03.png](imagenes/03.png)
 
-## 1)
+## 1) & 2)
 
 ### Comandos necesarios para analizar la configuración BGP
 
@@ -269,6 +269,40 @@ A continuación, los comandos mas útiles para analizar la configuración y esta
 - `show ip bgp neighbors [IP del vecino]`: Ver detalles sobre un vecino BGP específico.
 
 En la simulación, se procedió a testear todas las conexiones, con resultado satisfactorio; ningún problema de conexión encontrado.
+
+Se procede a utilizar los comandos aprendidos, en cada router. Primero en el **Router0**:
+
+![04.png](imagenes/04.png)
+
+Aquello que fué subrayado en verde es lo que evidencia la utilización de BGP, asociado a cierta subred (_192.168.2.0/24_), cuya puerta de enlace es _10.0.0.2_.
+
+En cuanto a la tabla de ruteo, encuadrada en amarillo, se evidencia:
+1. Una de las NICs del router **directamente conectada** a la subred a la cual pertenece: _10.0.0.0/24_.
+2. Una (diferente a la anterior) de las NICs del router **directamente conectada** a la subred 192.168.1.0/24. En el esquema topológico se encuentra coloreada de rojo.
+3. A través de BGP, el router se encuentra enrutado a la subred _192.168.2.0/24_.
+
+Solo se utiliza el comando `show ip route` en el **Router1**:
+
+![05.png](imagenes/05.png)
+
+Se observa:
+1. Una de las NICs del router **directamente conectada** a la subred a la cual pertenece: _10.0.0.0/24_.
+2. A través de BGP, el router se encuentra enrutado a la subred _192.168.1.0/24_.
+3. Una (diferente a la anterior) de las NICs del router **directamente conectada** a la subred 192.168.2.0/24. En el esquema topológico se encuentra coloreada de verde.
+
+## 3)
+
+`tracert` desde **PC0** a **PC3**, ambos routers encendidos:
+
+![06.png](imagenes/06.png)
+
+`tracert` desde **PC0** a **PC3**, Router1 apagado:
+
+![07.png](imagenes/07.png)
+
+## 4)
+
+
 
 ---
 
