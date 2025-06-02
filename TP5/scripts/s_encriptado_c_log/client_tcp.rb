@@ -4,7 +4,7 @@ require 'logger'
 =begin
 CONSTANTS
 =end
-SERVER_IP = 'localhost'.freeze
+SERVER_IP = '192.168.1.101'.freeze
 SERVER_PORT = 4000
 SLP_TIME = 1
 GRP_NAME = 'epsilon'.freeze

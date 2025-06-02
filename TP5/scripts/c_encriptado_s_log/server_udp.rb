@@ -41,7 +41,7 @@ RUNTIME
 =end
 # socket creation and usage (IPv4)
 udp_server = UDPSocket.new(Socket::AF_INET)
-udp_server.bind('localhost', SERVER_PORT)
+udp_server.bind('0.0.0.0', SERVER_PORT)
 AMT_OF_PACKETS_TO_RCV.times do |i|
   # get req (blocking)
   req, ipaddr = udp_server.recvfrom(MAX_UDP_PACKET_LENGTH)
