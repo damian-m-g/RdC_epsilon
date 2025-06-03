@@ -23,13 +23,13 @@ _Oliva Cuneo Facundo_
 
 ### Fecha
 
-_01-06-2025_
+_03-06-2025_
 
 ---
 
 # Resumen
 
-En el presente trabajo se detalla el desarrollo de aplicaciones cliente-servidor en Ruby para la comunicación a través de los protocolos TCP y UDP, con el objetivo de analizar y comparar su funcionamiento. Se realizó la captura y el análisis de tráfico mediante Wireshark para examinar la estructura de los paquetes y se midieron métricas de rendimiento como latencia y jitter, confirmando la mayor velocidad de UDP frente a la fiabilidad de TCP. Adicionalmente, se implementó un sistema de encriptación simétrica utilizando AES-256-CBC para asegurar la confidencialidad de los datos transmitidos, verificando la encriptación de la carga útil. El informe concluye con una comparación teórica entre criptografía simétrica y asimétrica, y una propuesta conceptual para establecer un canal de comunicación seguro entre dos partes sin contacto previo, utilizando un enfoque híbrido con autenticación fuera de banda para mitigar ataques Man-in-the-Middle.
+En el presente trabajo se detalla el desarrollo de aplicaciones cliente-servidor programadas en Ruby para la comunicación a través de los protocolos TCP y UDP, con el objetivo de analizar y comparar su funcionamiento. Se realizó la captura y el análisis de tráfico mediante Wireshark para examinar la estructura de los paquetes y se midieron métricas de rendimiento como latencia y jitter, confirmando la mayor velocidad de UDP frente a la fiabilidad de TCP. Adicionalmente, se implementó un sistema de encriptación simétrica utilizando AES-256-CBC para asegurar la confidencialidad de los datos transmitidos, verificando la encriptación de la carga útil. El informe concluye con una comparación teórica entre criptografía simétrica y asimétrica, y una propuesta conceptual para establecer un canal de comunicación seguro entre dos partes sin contacto previo, utilizando un enfoque híbrido con autenticación fuera de banda para mitigar ataques _Man-in-the-Middle_.
 
 **Palabras clave**: _Redes de Computadoras, Ruby, TCP, UDP, Wireshark, Latencia, Jitter, Encriptación Simétrica, Encriptación Asimétrica, AES, Intercambio de Claves._
 
@@ -39,13 +39,15 @@ En el presente trabajo se detalla el desarrollo de aplicaciones cliente-servidor
 
 En el presente informe se detalla el desarrollo y los resultados obtenidos en el Trabajo Práctico N°5, centrado en el análisis de la capa de transporte y la encriptación en sistemas de comunicación. El objetivo principal de este trabajo es profundizar en los conceptos de programación de redes (networking), la captura y análisis de tráfico, y la implementación de mecanismos de seguridad para la transferencia de datos.
 
-Para ello, se desarrollaron scripts en **Ruby** utilizando la librería `socket` para establecer una comunicación cliente-servidor, inicialmente a través del protocolo **TCP** y posteriormente **UDP**. Se procedió al envío de secuencias de paquetes para medir y analizar métricas de rendimiento clave como la latencia y el jitter. Finalmente, se exploraron las diferencias entre la encriptación simétrica y asimétrica, aplicando un método de encriptación a la comunicación desarrollada para asegurar la confidencialidad de la información transmitida.
+Para ello, se desarrollaron scripts en **Ruby** utilizando la librería core `socket` para establecer una comunicación cliente-servidor, inicialmente a través del protocolo **TCP** y posteriormente **UDP**. Se procedió al envío de secuencias de paquetes para medir y analizar métricas de rendimiento clave como la latencia y el jitter. Finalmente, se exploraron las diferencias entre la encriptación simétrica y asimétrica, aplicando un método de encriptación a la comunicación desarrollada para asegurar la confidencialidad de la información transmitida.
 
 Este documento presenta la metodología utilizada, las herramientas empleadas, los resultados de las mediciones y un análisis comparativo de los protocolos y técnicas estudiadas, cumpliendo con todos los objetivos planteados en la guía del trabajo práctico.
 
 ---
 
 # **Desarrollo**
+
+_NOTA: Puede hayar todos los scripts realizados dentro del directorio **TP5/scripts**, y los logs de aquellos scripts que generan logs, dentro del directorio **TP5/logs**._ 
 
 ## 1.a) 
 
@@ -141,11 +143,17 @@ Este documento presenta la metodología utilizada, las herramientas empleadas, l
 - <b>Confirmación de la secuencia:</b>  
   Se observa que el mensaje recibido y enviado respeta el orden y contenido, según el identificador del mensaje y la información de los logs.
 
+## 1.b)
+
+Los scripts que incluyen esta funcionalidad solicitada son aquellos dentro de _TP5/scripts/s_encriptado_c_log_, que significa "sin encriptado, con log", que son esencialmente los mismos ejecutados en 1.a). Se hizo esta separación entre scripts que implementan encriptación y no, para aislar claramente las funcionalidades introducidas, y por lo tanto, los scripts que nacen a partir de la parte 4), fueron podados de la implementación de logs.  
+
+Ejemplos reales de logs generados por los respectivos scripts pueden encontrarse en _TP5/logs_.
+
 ## 1.c) 
 
 ## Cálculo de latencia promedio, máxima, mínima y jitter para una secuencia de 100 paquetes
 
-A continuación, se presentan las métricas obtenidas para TCP y UDP, calculadas a partir de la secuencia de 100 paquetes enviados y recibidos, según lo registrado en `network_stats.csv`:
+A continuación, se presentan las métricas obtenidas para TCP y UDP, calculadas a partir de la secuencia de 100 paquetes enviados y recibidos, según lo registrado en `network_stats.csv`, un archivo generado a partir de correr nuestro script `stats_generator.rb`, teniendo los debidos logs, ya generados:
 
 | Protocolo | Latencia mínima [ms] | Latencia máxima [ms] | Latencia promedio [ms] | Jitter [ms] |
 |-----------|----------------------|----------------------|------------------------|-------------|
@@ -205,19 +213,19 @@ A continuación se presentan y analizan un paquete UDP y uno TCP capturados en W
 
 ### Tabla comparativa de métricas de red
 
-| Métrica                | Paquete TCP                          | Paquete UDP                |
-|------------------------|--------------------------------------|----------------------------|
-| Protocolo              | TCP                                  | UDP                        |
-| RFC                    | RFC 793                              | RFC 768                    |
-| IP Origen              | 192.168.1.100                        | 192.168.1.101              |
-| IP Destino             | 192.168.1.101                        | 192.168.1.100              |
-| Puerto Origen          | 4000                                 | 35537                      |
-| Puerto Destino         | 51046                                | 7000                       |
-| Longitud total         | 80 bytes                             | 60 bytes                   |
-| Tamaño encabezado      | 32 bytes (TCP + opciones)            | 8 bytes (fijo por RFC 768) |
-| Carga útil (payload)   | 14 bytes                             | 13 bytes                   |
-| Fiabilidad             | Sí (control de flujo y errores)      | No (sin control de errores)|
-| Orientado a conexión   | Sí                                   | No                         |
+| Métrica              | Paquete TCP                     | Paquete UDP                 |
+|----------------------|---------------------------------|-----------------------------|
+| Protocolo            | TCP                             | UDP                         |
+| RFC                  | RFC 793                         | RFC 768                     |
+| IP Origen            | 192.168.1.100                   | 192.168.1.101               |
+| IP Destino           | 192.168.1.101                   | 192.168.1.100               |
+| Puerto Origen        | 4000                            | 35537                       |
+| Puerto Destino       | 51046                           | 7000                        |
+| Longitud total       | 80 bytes                        | 60 bytes                    |
+| Tamaño encabezado    | 32 bytes (TCP + opciones)       | 8 bytes (fijo por RFC 768)  |
+| Carga útil (payload) | 14 bytes                        | 13 bytes                    |
+| Fiabilidad           | Sí (control de flujo y errores) | No (sin control de errores) |
+| Orientado a conexión | Sí                              | No                          |
 
 
 ### Observaciones adicionales
@@ -285,14 +293,14 @@ A continuación se presentan y analizan un paquete UDP y uno TCP capturados en W
 
 ### Comparación Directa
 
-| Aspecto             | Simétrica (Clave Secreta)   | Asimétrica (Clave Pública/Privada)      |
-|---------------------|-----------------------------|-----------------------------------------|
-| **Número de claves**| 1 (secreta compartida)      | 2 (pública y privada)                   |
-| **Velocidad**       | Rápida                      | Lenta                                   |
-| **Recursos**        | Pocos                       | Muchos                                  |
-| **Gestión de claves**| Compleja (distribución segura) | Simple (clave pública abierta)      |
-| **Uso principal**   | Grandes volúmenes de datos  | Intercambio de claves, firmas           |
-| **Tamaño de clave típico** | 128-256 bits (AES)        | 2048+ bits (RSA), 256+ bits (ECC)       |
+| Aspecto                    | Simétrica (Clave Secreta)      | Asimétrica (Clave Pública/Privada) |
+|----------------------------|--------------------------------|------------------------------------|
+| **Número de claves**       | 1 (secreta compartida)         | 2 (pública y privada)              |
+| **Velocidad**              | Rápida                         | Lenta                              |
+| **Recursos**               | Pocos                          | Muchos                             |
+| **Gestión de claves**      | Compleja (distribución segura) | Simple (clave pública abierta)     |
+| **Uso principal**          | Grandes volúmenes de datos     | Intercambio de claves, firmas      |
+| **Tamaño de clave típico** | 128-256 bits (AES)             | 2048+ bits (RSA), 256+ bits (ECC)  |
 
 ---
 
@@ -318,7 +326,7 @@ En la práctica, la mayoría de sistemas modernos utilizan ambos tipos combinado
 
 ## 4.b) Investigación y selección de librería para encriptar mensajes
 
-Para asegurar la confidencialidad de los mensajes transmitidos en mis scripts, opté por utilizar la librería estándar de Ruby `openssl` junto al algoritmo AES-256-CBC. Esta combinación permite implementar cifrado simétrico robusto.
+Para asegurar la confidencialidad de los mensajes transmitidos en nuestros scripts, optamos por utilizar la librería estándar de Ruby `openssl` junto al algoritmo **AES-256-CBC**. Esta combinación permite implementar cifrado simétrico robusto.
 
 ### Principales características de `openssl` con AES-256-CBC en Ruby
 
@@ -474,6 +482,8 @@ Este código no tiene ningún significado legible para un observador externo:
 
 Esto implica que aunque se intercepte el paquete en la red, el contenido permanecerá oculto y seguro para cualquier atacante que no disponga de la clave correcta.
 
+_NOTA: Por cuestiones prácticas y didácticas, dentro de los scripts que implementan encriptación, encontrará la **KEY** (Encryption Key) y el **IV** (Initialization Vector) hardcodeados. Por supuesto que en código de producción, esto no puede estar allí, sino que debiera ser cargado a memoria, por ejemplo, a través de algún mecanismo como la utilización de variables de ambiente._
+
 ## 4. d)
 
 Para encriptar la comunicación entre dos computadoras remotas que nunca han intercambiado información, se debe utilizar una combinación de criptografía asimétrica y un protocolo de intercambio de claves, autenticando la comunicación mediante un canal secundario para evitar ataques.
@@ -573,7 +583,6 @@ Si bien este enfoque conceptual es una buena manera para entender los mecanismos
 
 ---
 
-
 # Conclusiones
 
 A lo largo de este trabajo práctico, se cumplieron exitosamente los objetivos de analizar y comparar los protocolos de transporte TCP y UDP, así como de implementar una capa de seguridad para la comunicación. El análisis de rendimiento demostró cuantitativamente las ventajas de UDP en términos de menor latencia y jitter, a costa de la fiabilidad que caracteriza a TCP, validando los conceptos teóricos. La implementación de cifrado simétrico con AES-256-CBC resultó eficaz para proteger la confidencialidad de los datos, transformando la carga útil en un formato ilegible para terceros no autorizados, como se verificó en las capturas de tráfico. Finalmente, la investigación sobre criptografía y el diseño conceptual de un sistema de intercambio de claves seguro subrayaron la importancia crítica de la autenticación para prevenir ataques Man-in-the-Middle y la eficacia de los sistemas híbridos en aplicaciones del mundo real. Este proyecto permitió integrar de manera práctica los fundamentos de programación de redes, análisis de protocolos y seguridad informática.
@@ -592,4 +601,6 @@ A lo largo de este trabajo práctico, se cumplieron exitosamente los objetivos d
 
 [5] Wikipedia contributors. (s. f.). **Diffie–Hellman key exchange**. *Wikipedia*. Recuperado el 1 de junio de 2025 de https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange
 
+[6] Autores varios. **Ruby 3.0.X API**. Recuperado el 28 de mayo de 2025 de https://msp-greg.github.io/ruby_3_0/.
 
+[7] Thomas, D., Fowler, C., & Hunt, A. (2009). **Programming Ruby 1.9: The Pragmatic Programmers' Guide** (4th ed.). The Pragmatic Bookshelf.
